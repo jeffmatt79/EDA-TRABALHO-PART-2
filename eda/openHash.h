@@ -82,6 +82,15 @@ public:
     size_t size() const {
     return m_size;
 }
+std::vector<std::pair<Key, Value>> getAllWords() const {
+    std::vector<std::pair<Key, Value>> result;
+    for (const auto& entry : table) {
+        if (entry.state == OCCUPIED) {
+            result.emplace_back(entry.key, entry.value);
+        }
+    }
+    return result;
+}
 
 
 private:
@@ -98,4 +107,3 @@ private:
         }
     }
 };
-
