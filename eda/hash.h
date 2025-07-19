@@ -198,7 +198,7 @@ void insert(const Key& k) {
     cout << "Digite 'completo', 'freq' ou uma letra (ex: a): ";
     string escolha;
     cin >> escolha;
-    std::ofstream outFile(arquivoSaida);  // <<<<< LINHA FALTANDO
+    std::ofstream outFile(arquivoSaida);  
 
      if (escolha == "completo") {
           for (size_t i = 0; i < dicionario.bucket_count(); ++i) {
