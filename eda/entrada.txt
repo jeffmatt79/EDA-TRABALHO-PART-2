@@ -1,0 +1,212 @@
+#pragma once
+#include <iostream>
+#include <vector>
+
+template <typename K, typename V>
+class RedBlackTree {
+private:
+    enum Color { RED, BLACK };
+
+    struct Node {
+        K key;
+        V value;
+        Color color;
+        Node *left, *right, *parent;
+
+        Node(const K& k, const V& v) : key(k), value(v), color(RED), left(nullptr), right(nullptr), parent(nullptr) {}
+    };
+
+    Node* root;
+    int _size;
+    int comparisons;
+
+    void rotateLeft(Node*& root, Node*& pt) {
+        Node* pt_right = pt->right;
+        pt->right = pt_right->left;
+        if (pt->right != nullptr)
+            pt->right->parent = pt;
+
+        pt_right->parent = pt->parent;
+
+        if (pt->parent == nullptr)
+            root = pt_right;
+        else if (pt == pt->parent->left)
+            pt->parent->left = pt_right;
+        else
+            pt->parent->right = pt_right;
+
+        pt_right->left = pt;
+        pt->parent = pt_right;
+    }
+
+    void rotateRight(Node*& root, Node*& pt) {
+        Node* pt_left = pt->left;
+        pt->left = pt_left->right;
+        if (pt->left != nullptr)
+            pt->left->parent = pt;
+
+        pt_left->parent = pt->parent;
+
+        if (pt->parent == nullptr)
+            root = pt_left;
+        else if (pt == pt->parent->left)
+            pt->parent->left = pt_left;
+        else
+            pt->parent->right = pt_left;
+
+        pt_left->right = pt;
+        pt->parent = pt_left;
+    }
+
+    void fixInsert(Node*& root, Node*& pt) {
+        Node* parent_pt = nullptr;
+        Node* grand_parent_pt = nullptr;
+
+        while ((pt != root) && (pt->color != BLACK) && (pt->parent->color == RED)) {
+            parent_pt = pt->parent;
+            grand_parent_pt = pt->parent->parent;
+
+            if (parent_pt == grand_parent_pt->left) {
+                Node* uncle_pt = grand_parent_pt->right;
+
+                if (uncle_pt != nullptr && uncle_pt->color == RED) {
+                    grand_parent_pt->color = RED;
+                    parent_pt->color = BLACK;
+                    uncle_pt->color = BLACK;
+                    pt = grand_parent_pt;
+                } else {
+                    if (pt == parent_pt->right) {
+                        rotateLeft(root, parent_pt);
+                        pt = parent_pt;
+                        parent_pt = pt->parent;
+                    }
+                    rotateRight(root, grand_parent_pt);
+                    std::swap(parent_pt->color, grand_parent_pt->color);
+                    pt = parent_pt;
+                }
+            } else {
+                Node* uncle_pt = grand_parent_pt->left;
+
+                if ((uncle_pt != nullptr) && (uncle_pt->color == RED)) {
+                    grand_parent_pt->color = RED;
+                    parent_pt->color = BLACK;
+                    uncle_pt->color = BLACK;
+                    pt = grand_parent_pt;
+                } else {
+                    if (pt == parent_pt->left) {
+                        rotateRight(root, parent_pt);
+                        pt = parent_pt;
+                        parent_pt = pt->parent;
+                    }
+                    rotateLeft(root, grand_parent_pt);
+                    std::swap(parent_pt->color, grand_parent_pt->color);
+                    pt = parent_pt;
+                }
+            }
+        }
+        root->color = BLACK;
+    } \\ abacadabra
+
+    void inorder(Node* node, std::vector<std::pair<K, V>>& vec) {
+        if (node == nullptr) return;
+        inorder(node->left, vec);
+        vec.push_back({node->key, node->value});
+        inorder(node->right, vec);
+    }
+
+    Node* find(Node* node, const K& key) {
+        if (!node) return nullptr;
+        if (key == node->key) return node;
+        else if (key < node->key) return find(node->left, key);
+        else return find(node->right, key);
+    }
+    void printChar(Node* node, std::ostream& out, char initial) {
+    if (!node) return;
+
+    printChar(node->left, out, initial);
+
+    if (!node->key.empty() && node->key[0] == initial)
+        out << node->key << " " << node->value << "\n";
+
+    printChar(node->right, out, initial);
+}
+ void _insert(const K& key, const V& value) {
+       Node* pt = new Node(key, value);
+        
+
+        Node* y = nullptr;
+        Node* x = root;
+
+        while (x != nullptr) {
+            y = x;
+            comparisons++;
+            if (pt->key < x->key)
+                x = x->left;
+            else if (pt->key > x->key)
+                x = x->right;
+            else {
+             x->value++; 
+             return; // duplicate key
+             }
+        } 
+        _size++;
+
+        pt->parent = y;
+        if (y == nullptr)
+            root = pt;
+        else if (pt->key < y->key)
+            y->left = pt;
+        else
+            y->right = pt;
+
+        fixInsert(root, pt);
+}
+    void clear(Node* node) {
+        if (!node) return;
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
+public:
+    RedBlackTree() : root(nullptr), _size(0), comparisons(0) {}
+
+    void insert(const K& key, const V& value) {
+       _insert(key, value);
+    }
+
+    void update(const K& key, const V& value) {
+        Node* n = find(root, key);
+        if (n) n->value = value;
+    }
+
+    bool exists(const K& key) {
+        return find(root, key) != nullptr;
+    }
+
+    V get(const K& key) {
+        Node* n = find(root, key);
+        return n ? n->value : V();
+    }
+
+    int size() {
+        return _size;
+    }
+     void printChar(char initial, std::ostream& out = std::cout) {
+    printChar(root, out, initial);
+}
+
+    int getComparisons() {
+        return comparisons;
+    }
+    void clear() {
+        clear(root);
+        root = nullptr;
+        _size = 0;
+        comparisons = 0;
+    }
+
+    void toVector(std::vector<std::pair<K, V>>& vec) {
+        inorder(root, vec);
+    }
+};
+
