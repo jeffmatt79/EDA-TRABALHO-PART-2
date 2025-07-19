@@ -155,31 +155,23 @@ auto fim = chrono::high_resolution_clock::now();
             }
         }
         
-        auto fim = chrono::high_resolution_clock::now();
-        std::vector<std::pair<std::string, int>> vec;
-        chrono::duration<double> duracao = fim - inicio;
-        for (char c = 'a'; c <= 'z'; ++c) {
-            for (int i = 0; i < 10000; ++i) {
-                string tentativa = string(1, c);
-                int valor;
-                if (dicionario.find(tentativa, valor)) {
-                    vec.push_back({tentativa, valor});
-                }
-            }
-        }
+       auto fim = chrono::high_resolution_clock::now();
+chrono::duration<double> duracao = fim - inicio;
 
-        sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
-            return a.second > b.second;
-        });
+auto vec = dicionario.getAllWords();
 
-        ofstream outFile(arquivoSaida);
-        for (auto& p : vec) {
-            outFile << p.first << " " << p.second << "\n";
-        }
+std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+    return a.first < b.first; 
+});
 
-        cout << "Palavras: " << dicionario.size() << endl;
-        cout << "Comparacoes: " << dicionario.getComparisons() << endl;
-        cout << "Tempo: " << duracao.count() << " segundos" << endl;
+std::ofstream outFile(arquivoSaida);
+for (const auto& p : vec) {
+    outFile << p.first << " " << p.second << "\n";
+}
 
-  }  
+std::cout << "Palavras: " << dicionario.size() << std::endl;
+std::cout << "Comparações: " << dicionario.getComparisons() << std::endl;
+std::cout << "Tempo: " << duracao.count() << " segundos" << std::endl;
+
+}
 }
